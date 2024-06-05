@@ -19,9 +19,9 @@ import datasets
 
 
 # %%
-df = pd.read_csv("data/raw/mp_corpus_1990-01-01.csv")
-meta = pd.read_csv("data/raw/meta_corpus_1990-01-01.csv")
-parties = pd.read_csv("data/raw/mp_parties.csv")
+df = pd.read_csv("data/raw_mp_dumps/mp_corpus_1990-01-01.csv")
+meta = pd.read_csv("data/raw_mp_dumps/meta_corpus_1990-01-01.csv")
+parties = pd.read_csv("data/raw_mp_dumps/mp_parties.csv")
 
 # %%
 # select countries of interests from the party metadata table
