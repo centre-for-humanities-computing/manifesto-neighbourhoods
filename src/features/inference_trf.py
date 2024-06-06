@@ -13,7 +13,9 @@ from tqdm import tqdm
 from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
 
-def infer_with_trf(docs: list[str], model_name: str, ids: list[str] | None = None, **pipe_kwargs) -> list[list[dict]]:
+def infer_with_trf(
+    docs: list[str], model_name: str, ids: list[str] | None = None, **pipe_kwargs
+) -> list[list[dict]]:
     # ids and docs have to be the same length
     if ids:
         assert len(ids) == len(docs)
@@ -30,13 +32,15 @@ def infer_with_trf(docs: list[str], model_name: str, ids: list[str] | None = Non
     for doc in raw_predictions:
         doc_ents = []
         for ent in doc:
-            doc_ents.append({
-                "text": ent["word"],
-                "label": ent["entity_group"],
-                "score": ent["score"],
-                "start": ent["start"],
-                "end": ent["end"],
-            })
+            doc_ents.append(
+                {
+                    "text": ent["word"],
+                    "label": ent["entity_group"],
+                    "score": ent["score"],
+                    "start": ent["start"],
+                    "end": ent["end"],
+                }
+            )
         predictions.append(doc_ents)
 
     if ids:

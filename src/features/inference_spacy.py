@@ -13,7 +13,9 @@ import spacy
 from tqdm import tqdm
 
 
-def infer_with_spacy(docs: list[str], model_name: str, ids: list[str] | None = None, **pipe_kwargs) -> list[list[dict]]:
+def infer_with_spacy(
+    docs: list[str], model_name: str, ids: list[str] | None = None, **pipe_kwargs
+) -> list[list[dict]]:
     """
     Run inference using a spaCy model on a list of documents and return the predictions.
 
@@ -45,13 +47,15 @@ def infer_with_spacy(docs: list[str], model_name: str, ids: list[str] | None = N
     for doc in tqdm(nlp.pipe(docs, **pipe_kwargs), total=len(docs)):
         doc_ents = []
         for ent in doc.ents:
-            doc_ents.append({            
-                "text": ent.text,
-                "label": ent.label_,
-                "score": None,
-                "start": ent.start_char,
-                "end": ent.end_char, 
-            })
+            doc_ents.append(
+                {
+                    "text": ent.text,
+                    "label": ent.label_,
+                    "score": None,
+                    "start": ent.start_char,
+                    "end": ent.end_char,
+                }
+            )
         predictions.append(doc_ents)
 
     # add ids
