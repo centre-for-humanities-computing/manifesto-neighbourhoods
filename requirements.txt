@@ -3,3 +3,4 @@ turftopic
 topic-wizard
 datasets
 transformers
+spacy
