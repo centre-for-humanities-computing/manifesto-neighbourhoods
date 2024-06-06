@@ -82,5 +82,5 @@ def transform_lang2model_mapping(lang2model_mapping: dict, model2type_mapping: d
     return pd.DataFrame(data)
 
 
-def get_model_registry(lang2model_map, model2type_map):
+def get_model_registry(lang2model_map=lang2model_map, model2type_map=model2type_map):
     return transform_lang2model_mapping(lang2model_map, model2type_map)

@@ -44,7 +44,7 @@ def infer_with_spacy(
 
     # run inference
     predictions = []
-    for doc in tqdm(nlp.pipe(docs, **pipe_kwargs), total=len(docs)):
+    for idx, doc in enumerate(tqdm(nlp.pipe(docs, **pipe_kwargs), total=len(docs))):
         doc_ents = []
         for ent in doc.ents:
             doc_ents.append(
@@ -54,13 +54,9 @@ def infer_with_spacy(
                     "score": None,
                     "start": ent.start_char,
                     "end": ent.end_char,
+                    "id": ids[idx] if ids else None,
                 }
             )
         predictions.append(doc_ents)
-
-    # add ids
-    if ids:
-        for manifesto_id, doc in zip(ids, predictions):
-            doc["id"] = manifesto_id
 
     return predictions

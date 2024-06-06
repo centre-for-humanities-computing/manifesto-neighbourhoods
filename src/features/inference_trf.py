@@ -29,7 +29,7 @@ def infer_with_trf(
     raw_predictions = nlp(docs, **pipe_kwargs)
     # restructure predictions
     predictions = []
-    for doc in raw_predictions:
+    for idx, doc in enumerate(raw_predictions):
         doc_ents = []
         for ent in doc:
             doc_ents.append(
@@ -39,12 +39,9 @@ def infer_with_trf(
                     "score": ent["score"],
                     "start": ent["start"],
                     "end": ent["end"],
+                    "id": ids[idx] if ids else None,
                 }
             )
         predictions.append(doc_ents)
-
-    if ids:
-        for manifesto_id, doc in zip(ids, predictions):
-            doc["id"] = manifesto_id
 
     return predictions
