@@ -4,3 +4,4 @@ topic-wizard
 datasets
 transformers
 vllm
+spacy

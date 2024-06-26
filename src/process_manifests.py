@@ -11,29 +11,65 @@ Dataset schema
     "metadata": {...}        # OPTIONAL: source-specific metadata
 }
 """
-
-# %%
 from tqdm import tqdm
 import pandas as pd
 import datasets
 
 
-# %%
 df = pd.read_csv("data/raw_mp_dumps/mp_corpus_1990-01-01.csv")
 meta = pd.read_csv("data/raw_mp_dumps/meta_corpus_1990-01-01.csv")
 parties = pd.read_csv("data/raw_mp_dumps/mp_parties.csv")
 
-# %%
+
 # select countries of interests from the party metadata table
 countries_of_interest = [
-    "Italy", "Serbia", "Georgia", "Croatia", "Ukraine", "Poland", "Spain", "Montenegro",
-    "Latvia", "Netherlands", "Romania", "Slovakia", "North Macedonia", "Lithuania", "Bulgaria",
-    "Belgium", "Czech Republic", "Slovenia", "Russia", "France", "Armenia", 
-    "Turkey", "Bosnia-Herzegovina", "Estonia", "Greece", "Portugal", "Ireland", "Denmark",
-    "Germany", "Iceland", "Switzerland", "Moldova", "German Democratic Republic", "Finland",
-    "United Kingdom", "Hungary", "Albania", "Norway", "Cyprus", "Austria", "Sweden",
-    "Luxembourg", "Belarus", "Azerbaijan", "Northern Ireland", "Malta",
-    ]
+    "Italy",
+    "Serbia",
+    "Georgia",
+    "Croatia",
+    "Ukraine",
+    "Poland",
+    "Spain",
+    "Montenegro",
+    "Latvia",
+    "Netherlands",
+    "Romania",
+    "Slovakia",
+    "North Macedonia",
+    "Lithuania",
+    "Bulgaria",
+    "Belgium",
+    "Czech Republic",
+    "Slovenia",
+    "Russia",
+    "France",
+    "Armenia",
+    "Turkey",
+    "Bosnia-Herzegovina",
+    "Estonia",
+    "Greece",
+    "Portugal",
+    "Ireland",
+    "Denmark",
+    "Germany",
+    "Iceland",
+    "Switzerland",
+    "Moldova",
+    "German Democratic Republic",
+    "Finland",
+    "United Kingdom",
+    "Hungary",
+    "Albania",
+    "Norway",
+    "Cyprus",
+    "Austria",
+    "Sweden",
+    "Luxembourg",
+    "Belarus",
+    "Azerbaijan",
+    "Northern Ireland",
+    "Malta",
+]
 
 parties_subset = parties.query("countryname == @countries_of_interest")
 parties_of_interest = set(parties_subset["party"].tolist())
@@ -41,12 +77,11 @@ parties_of_interest = set(parties_subset["party"].tolist())
 # select parties to process from df
 df_subset = df[df["party"].isin(parties_of_interest)]
 
-# %%
 # select valid manifesto_ids from the manifesto metadata table
 meta_subset = meta.dropna(subset=["manifesto_id"])
 assert len(set(meta_subset["manifesto_id"])) == len(meta_subset)
 
-# %%
+
 v1 = []
 for manifesto_id, gr_df in tqdm(df_subset.groupby("manifesto_id")):
     # concat text
@@ -58,9 +93,13 @@ for manifesto_id, gr_df in tqdm(df_subset.groupby("manifesto_id")):
     # representative observation
     obs = gr_df.reset_index().head(1)
     # find additional manifesto metadata
-    obs_manifesto_meta = meta_subset[meta_subset["manifesto_id"] == manifesto_id].reset_index()
+    obs_manifesto_meta = meta_subset[
+        meta_subset["manifesto_id"] == manifesto_id
+    ].reset_index()
     # find additional party metadata
-    obs_party_meta = parties_subset[parties_subset["party"] == obs["party"][0]].reset_index()
+    obs_party_meta = parties_subset[
+        parties_subset["party"] == obs["party"][0]
+    ].reset_index()
 
     new_obs = {
         "id": manifesto_id,
