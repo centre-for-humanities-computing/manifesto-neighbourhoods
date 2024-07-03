@@ -5,3 +5,8 @@ datasets
 transformers
 spacy
 iso639-lang
+matplotlib
+seaborn
+wikipedia
+wikipedia-api
+duckduckgo_search
