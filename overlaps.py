@@ -147,24 +147,37 @@ print(f"Got {len(df_top["norm_text"].unique())} unique NEs")
 
 # %%
 # part 2: filling in the gaps
-def search_iteration(query, sleep=True) -> str|None:
+def search_iteration(query, sleep=True) -> dict|str|None:
+    """
+    Returns
+    -------
+    dict : if search ran and found 
+    None: if search ran and did not find
+    str: if there was an error
+    """
     if sleep:
         time.sleep(random.uniform(1, 5))
 
-    results = DDGS().text(query, max_results=5)
-    first_wiki_link = None
-    for page in results:
-        if "wikipedia.org" in page["href"]:
-            first_wiki_link = page
-            break
-        else:
-            continue
-    return first_wiki_link
+    try:
+        results = DDGS().text(query, max_results=5)
+        first_wiki_link = None
+        for page in results:
+            if "wikipedia.org" in page["href"]:
+                first_wiki_link = page
+                break
+            else:
+                continue
+        return first_wiki_link
+
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 
 SKIP_TO = 0
 finished_iterations = 0
+last_save = 0
 results = []
+error_checking = []
 for name, df_group in tqdm(df_top.groupby(["norm_text", "metadata.language"])):
     if finished_iterations < SKIP_TO:
         finished_iterations += 1
@@ -174,32 +187,41 @@ for name, df_group in tqdm(df_top.groupby(["norm_text", "metadata.language"])):
     # first round: raw text
     wiki_1st = search_iteration(token)
     results.append({"token": token, "lang": lang, "round": 1, "wiki": wiki_1st})
+    error_checking.append(wiki_1st)
     # second round: raw text + context
     query = f"{token} {lang}"
     wiki_2nd = search_iteration(query)
     results.append({"token": token, "lang": lang, "round": 2, "wiki": wiki_2nd})
+    error_checking.append(wiki_2nd)
 
     # third round raw text + context + wiki
     if not wiki_1st and not wiki_2nd:
         query = f"{token} {lang} wiki"
         wiki_3rd = search_iteration(query)
         results.append({"token": token, "lang": lang, "round": 3, "wiki": wiki_3rd})
-
-    # finished iterations
-    finished_iterations += 1
+        error_checking.append(wiki_2nd)
 
     # save every ten itterations
     if finished_iterations % 10 == 0:
         # save the last 10 named entities
-        with open(f"data/ddg/dump_{finished_iterations}.json") as fout:
+        with open(f"data/ddg/dump_{finished_iterations}.json", "w") as fout:
             json.dump(results, fout)
+        # if more than 50% are errors, break and live to see another day
+        error_rate = sum([isinstance(obj, str) for obj in error_checking]) / len(error_checking)
+        if error_rate > 0.5:
+            raise ValueError(f"Too many errors. Try again from iteration: {last_save}")
         # reset results
         results = []
+        error_checking = []
+        last_save = finished_iterations
 
     # long pause every 100 iterations
     if (finished_iterations + 1) % 100 == 0:
         print("Pausing for a while...")
         time.sleep(random.uniform(30, 60))
+
+    # finished iterations
+    finished_iterations += 1
 
 # %%
 counter = 0
